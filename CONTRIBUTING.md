@@ -1,115 +1,105 @@
-Contributing to Neovim
-======================
+> 🌐 本文档由 [neovim/neovim](https://github.com/neovim/neovim) 翻译,英文原版见原项目。
 
-Getting started
----------------
+参与 Neovim 贡献
+================
 
-If you are new to the codebase, read [:help dev-quickstart](https://neovim.io/doc/user/dev_tools.html#dev-quickstart)
-to see how to run tests and start hacking on the codebase.
+入门
+------
 
-If you want to help but don't know where to start, here are some
-low-risk/isolated tasks:
+如果你刚接触这个代码库,先读 [:help dev-quickstart](https://neovim.io/doc/user/dev_tools.html#dev-quickstart),
+了解如何跑测试、如何上手改代码。
 
-- Try a [complexity:low] issue.
-- Fix bugs found by [Coverity](#coverity).
-- [Merge a Vim patch] (requires strong familiarity with Vim)
-  - NOTE: read the above link before sending improvements to "runtime files" (anything in `runtime/`).
-    - *Vimscript* files are (mostly) maintained by [Vim], not Nvim.
-    - *Lua* files are maintained by *Nvim*.
-    - Nvim's [filetype detection](https://github.com/neovim/neovim/blob/master/runtime/lua/vim/filetype.lua) behavior matches Vim, so changes to filetype detection should be submitted to [Vim] first.
+如果想帮忙但不知道从哪下手,这里有一些低风险/相对独立的任务:
 
-Reporting problems
-------------------
+- 试试 [complexity:low] 标签的 issue。
+- 修复 [Coverity](#coverity) 发现的 bug。
+- [合并 Vim 补丁](https://neovim.io/doc/user/dev_vimpatch.html)(需要对 Vim 相当熟悉)
+  - 注意:向 "runtime 文件"(`runtime/` 下的所有内容)提交改进之前,先读完上面的链接。
+    - *Vimscript* 文件(大部分)由 [Vim](https://github.com/vim/vim) 维护,不是 Nvim。
+    - *Lua* 文件由 *Nvim* 维护。
+    - Nvim 的[文件类型检测](https://github.com/neovim/neovim/blob/master/runtime/lua/vim.filetype.lua)行为与 Vim 一致,因此文件类型检测相关的修改应先提交给 [Vim](https://github.com/vim/vim)。
 
-- [Check the FAQ][wiki-faq].
-- [Search existing issues][github-issues] (including closed!)
-- Update Neovim to the latest version to see if your problem persists.
-- Try to reproduce with `nvim --clean` ("factory defaults").
-- If a specific configuration or plugin is necessary to recreate the problem, use the minimal template in `contrib/minimal.lua` with `nvim --clean -u contrib/minimal.lua` after making the necessary changes.
-- [Bisect](https://neovim.io/doc/user/starting.html#bisect) your config: disable plugins incrementally, to narrow down the cause of the issue.
-- [Bisect][git-bisect] Neovim's source code to find the cause of a regression, if you can. This is _extremely_ helpful.
-- When reporting a crash, [include a stacktrace](https://neovim.io/doc/user/dev_tools.html#dev-tools-backtrace).
-- Use [ASAN/UBSAN](#sanitizers-asan-and-ubsan) to get detailed errors for segfaults and undefined behavior.
-- Check the logs. `:edit $NVIM_LOG_FILE`
-- Include `cmake --system-information` for build-related issues.
+报告问题
+--------
 
-Developer guidelines
---------------------
+- [先查 FAQ][wiki-faq]。
+- [搜索已有 issue][github-issues](包括已关闭的!)
+- 把 Neovim 更新到最新版,看看问题是否仍然存在。
+- 用 `nvim --clean`("出厂默认设置")尝试复现。
+- 如果必须配合特定配置或插件才能复现,请基于 `contrib/minimal.lua` 的最小模板修改,然后用 `nvim --clean -u contrib/minimal.lua` 运行。
+- 对你的配置做[二分排查](https://neovim.io/doc/user/starting.html#bisect):逐步禁用插件,缩小问题范围。
+- 如果可以,请对 Neovim 源码做 [git bisect][git-bisect] 找出引入回归的提交,这_极其_有帮助。
+- 报告崩溃时,[附上堆栈回溯](https://neovim.io/doc/user/dev_tools.html#dev-tools-backtrace)。
+- 用 [ASAN/UBSAN](#sanitizers-asan-and-ubsan) 获取段错误和未定义行为的详细报错。
+- 查看日志。`:edit $NVIM_LOG_FILE`
+- 构建相关的问题请附上 `cmake --system-information` 的输出。
 
-- New functionality should generally be implemented in Lua, not C. PRs [#37757](https://github.com/neovim/neovim/pull/37757), [#37831](https://github.com/neovim/neovim/pull/37831)
-  are excellent examples of this.
-- Read [:help dev-quickstart](https://neovim.io/doc/user/dev_tools.html#dev-quickstart) to see how to run tests and start hacking on the codebase.
-- Read [:help dev](https://neovim.io/doc/user/dev.html#dev) and [:help dev-doc][dev-doc-guide] if you are working on Nvim core.
-- Read [:help dev-ui](https://neovim.io/doc/user/dev.html#dev-ui) if you are developing a UI.
-- Read [:help dev-api-client](https://neovim.io/doc/user/dev.html#dev-api-client) if you are developing an API client.
-- Install `ninja` for faster builds of Nvim.
+开发者指南
+----------
+
+- 新功能一般应该用 Lua 实现,而不是 C。PR [#37757](https://github.com/neovim/neovim/pull/37757)、[#37831](https://github.com/neovim/neovim/pull/37831) 是很好的范例。
+- 读 [:help dev-quickstart](https://neovim.io/doc/user/dev_tools.html#dev-quickstart),了解如何跑测试、如何上手改代码。
+- 参与 Nvim 核心开发,请读 [:help dev](https://neovim.io/doc/user/dev.html#dev) 和 [:help dev-doc][dev-doc-guide]。
+- 开发 UI 请读 [:help dev-ui](https://neovim.io/doc/user/dev.html#dev-ui)。
+- 开发 API 客户端请读 [:help dev-api-client](https://neovim.io/doc/user/dev.html#dev-api-client)。
+- 安装 `ninja` 加快 Nvim 构建:
   ```bash
   sudo apt-get install ninja-build
   make distclean
-  make  # Nvim build system uses ninja automatically, if available.
+  make  # 只要装了 ninja,构建系统会自动使用。
   ```
-- Install `ccache` or `sccache` for faster rebuilds of Nvim. Nvim will use one
-  of these automatically if it's found. To disable caching use:
+- 安装 `ccache` 或 `sccache` 加快增量重编译。Nvim 检测到其中之一会自动启用。要禁用缓存:
   ```bash
   cmake -B build -D CACHE_PRG=OFF
   ```
 
-Pull requests (PRs)
----------------------
+拉取请求(PR)
+-------------
 
-### Guidelines
+### 基本准则
 
-- Don't ask to be assigned to an issue, just send a (reasonably complete) PR and
-  mark it as Draft until it is ready for review.
-- Your PR must include [test coverage][run-tests].
-- Avoid cosmetic changes to unrelated files in the same commit.
-- Use a [feature branch][git-feature-branch] instead of the master branch.
-- Use a _rebase workflow_. After addressing review comments, it's fine to force-push.
+- 不要申请认领某个 issue,直接发一个(基本完整的)PR,没准备好评审前先标为 Draft。
+- PR 必须包含[测试覆盖][run-tests]。
+- 避免在同一个 commit 里对无关文件做美化性修改。
+- 使用[特性分支][git-feature-branch],不要直接用 master 分支。
+- 采用 _rebase 工作流_。处理完评审意见后,force-push 是允许的。
 
-### AI-assisted work
+### AI 辅助工作
 
-Using AI for contributions is acceptable, given the following:
+允许使用 AI 辅助贡献,但须遵守以下要求:
 
-- YOU review the output before sending a non-Draft PR. Do NOT request review
-  until YOU have checked the AI generated PR and verify the following:
-- REMOVE verbosity and blathering from documentation, comments, PR description,
-  commit message, etc. All resources, including names, should be CONCISE and
-  CLEAR. They should contain USEFUL information and nothing more.
-- REMOVE and DEDUPLICATE redundant code, tests, explanations, etc. Explicitness
-  and clarity are GOOD but verbosity, over-explanation, and redundancy is BAD.
+- 在把 PR 从 Draft 转正之前,YOU 必须亲自审查输出。在你亲自检查 AI 生成的 PR 并确认下列事项之前,不要请求评审:
+- 删掉文档、注释、PR 描述、commit message 等内容里的废话和灌水。所有内容(包括命名)都应简洁清晰,只保留有用信息。
+- 删除并去重冗余的代码、测试、解释等。显式和清晰是好事,但啰嗦、过度解释和重复是坏事。
 
-### Merging to master
+### 合并到 master
 
-For maintainers: when a PR is ready to merge to master,
+给维护者:当一个 PR 准备合并进 master 时,
 
-- prefer _Squash Merge_ for "single-commit PRs" (when the PR has only one meaningful commit).
-- prefer _Merge_ for "multi-commit PRs" (when the PR has multiple meaningful commits).
+- "单 commit PR"(只有一个有意义的提交)优先用 _Squash Merge_。
+- "多 commit PR"(有多个有意义的提交)优先用 _Merge_。
 
-### Stages: Draft and Ready for review
+### 阶段:Draft 与 Ready for review
 
-Pull requests have two stages: Draft and Ready for review.
+PR 有两个阶段:Draft 和 Ready for review。
 
-1. [Create a Draft PR][pr-draft] while you are _not_ requesting feedback and
-   still working on the PR.
-2. [Change your PR to Ready][pr-ready] when the PR is ready for review.
-    - You can convert back to Draft at any time.
+1. _不_想收反馈、还在继续改的时候,[创建 Draft PR][pr-draft]。
+2. PR 可以评审了就[改为 Ready][pr-ready]。
+    - 随时可以改回 Draft。
 
-Do __not__ add labels like `[RFC]` or `[WIP]` in the title to indicate the
-state of your PR: this just adds noise.
+不要在标题里加 `[RFC]`、`[WIP]` 之类的标签来表示 PR 状态,那只是噪音。
 
-### PR description
+### PR 描述
 
-For bugfixes, your PR title should be essentially the same as (1) the
-"Problem" statement and (2) the test-case name. For example [PR #38048](https://github.com/neovim/neovim/pull/38048):
+对 bugfix 而言,PR 标题应与 (1) "Problem" 描述和 (2) 测试用例名基本一致。示例 [PR #38048](https://github.com/neovim/neovim/pull/38048):
 
-- Title: `fix(lua): extra CR (\r) in nvim -l output`
-- Problem: `nvim -l prints an extra \r to stdout: ...`
-- Test name: `it('outputs the EOF as LF (not CRLF) #36853' ...`
+- 标题:`fix(lua): extra CR (\r) in nvim -l output`
+- 问题:`nvim -l prints an extra \r to stdout: ...`
+- 测试名:`it('outputs the EOF as LF (not CRLF) #36853' ...`
 
-### Commit messages
+### Commit message
 
-Follow the [conventional commits guidelines][conventional_commits] to *make reviews easier* and to make
-the VCS/git logs more valuable (try `make lintcommit`). The structure of a commit message is:
+遵循 [conventional commits 规范][conventional_commits],这样评审更轻松、VCS/git 历史更有价值(可以试试 `make lintcommit`)。commit message 结构:
 
     type(scope): subject
 
@@ -119,174 +109,153 @@ the VCS/git logs more valuable (try `make lintcommit`). The structure of a commi
     Solution:
     ...
 
-- Commit message **subject** (you can **ignore this for "fixup" commits** or any commits you expect to be squashed):
-    - Prefix with a [_type_](https://github.com/commitizen/conventional-commit-types/blob/master/index.json):
+- commit message **subject**(对 "fixup" 提交或预期会被 squash 的提交可以**忽略此节**):
+    - 前缀用 [_type_](https://github.com/commitizen/conventional-commit-types/blob/master/index.json):
         - `build ci docs feat fix perf refactor revert test vim-patch`
-    - Append an optional `(scope)` such as `(lsp)`, `(treesitter)`, `(float)`, …
-    - Use the _imperative voice_: "Fix bug" rather than "Fixed bug" or "Fixes bug."
-    - Keep it short (under 72 characters).
-- Commit message **body** (detail):
-    - Concisely describe the Problem/Solution in the commit **body**. [Describing the problem](https://lamport.azurewebsites.net/pubs/state-the-problem.pdf)
-      _independently of the solution_ often leads to a better understanding for you, reviewers, and future readers.
+    - 可附加 `(scope)`,如 `(lsp)`、`(treesitter)`、`(float)` 等
+    - 用祈使语气:"Fix bug",而不是 "Fixed bug" 或 "Fixes bug"
+    - 保持简短(72 字符以内)
+- commit message **body**(正文):
+    - 在正文里简洁描述 Problem/Solution。[把问题描述得_独立于解决方案_](https://lamport.azurewebsites.net/pubs/state-the-problem.pdf)往往能让你、评审者和未来的读者理解得更透彻。
       ```
       Problem:
 
       Solution:
       ```
-- Indicate breaking API changes with "!" after the type, and a "BREAKING CHANGE" footer. Example:
+- 破坏性 API 变更:在 type 后加 "!",并附 "BREAKING CHANGE" footer。示例:
   ```
   refactor(provider)!: drop support for Python 2
 
   BREAKING CHANGE: refactor to use Python 3 features since Python 2 is no longer supported.
   ```
 
-### Automated builds (CI)
+### 自动化构建(CI)
 
-Each pull request must pass the automated builds on [GitHub Actions].
+每个 PR 都必须通过 [GitHub Actions] 上的自动构建。
 
-- CI builds are compiled with [`-Werror`][gcc-warnings], so compiler warnings
-  will fail the build.
-- If any tests fail, the build will fail. See [test/README.md#running-tests][run-tests] to run tests locally.
-- CI runs [ASan] and other analyzers.
-    - To run valgrind locally: `VALGRIND=1 make test`
-    - To run ASan/UBSan locally: `CC=clang make CMAKE_FLAGS="-DENABLE_ASAN_UBSAN=ON"`.
-      Note that MSVC requires Release or RelWithDebInfo build type to work properly.
-- The [lint](#lint) build checks that the code is formatted correctly and
-  passes various linter checks.
-- To see CI results faster in your PR, you can temporarily set `TEST_FILE` in
-  [test.yml](https://github.com/neovim/neovim/blob/ad8e0cfc1dfd937c2577dc032e524c799a772693/.github/workflows/test.yml#L26).
+- CI 构建启用了 [`-Werror`][gcc-warnings],编译器警告会直接导致构建失败。
+- 任何测试失败都会导致构建失败。本地跑测试见 [test/README.md#running-tests][run-tests]。
+- CI 会跑 [ASan] 等分析器。
+    - 本地跑 valgrind:`VALGRIND=1 make test`
+    - 本地跑 ASan/UBSan:`CC=clang make CMAKE_FLAGS="-DENABLE_ASAN_UBSAN=ON"`。
+      注意 MSVC 需要 Release 或 RelWithDebInfo 构建类型才能正常工作。
+- [lint](#lint) 构建会检查代码格式是否正确,并运行各类 linter。
+- 想更快看到 PR 的 CI 结果,可以临时在 [test.yml](https://github.com/neovim/neovim/blob/ad8e0cfc1dfd937c2577dc032e524c799a772693/.github/workflows/test.yml#L26) 里设置 `TEST_FILE`。
 
 ### Coverity
 
-Coverity runs against the master build. To view the defects you must
-[request access](https://scan.coverity.com/projects/neovim-neovim) (Coverity
-does not have a "public" view), then you will be approved as soon as
-a maintainer sees the email.
+Coverity 针对 master 构建运行。查看缺陷需要先[申请访问权限](https://scan.coverity.com/projects/neovim-neovim)(Coverity 没有"公开"视图),维护者看到邮件后很快会批准。
 
-- Use this format for commit messages (where `{id}` is the CID (Coverity ID);
-  ([example](https://github.com/neovim/neovim/pull/804))):
+- commit message 用这种格式(`{id}` 是 CID(Coverity ID);[示例](https://github.com/neovim/neovim/pull/804)):
   ```
   fix(coverity/{id}): {description}
   ```
-- Search the Neovim commit history to find examples:
+- 在 Neovim 提交历史里搜索示例:
   ```bash
   git log --oneline --no-merges --grep coverity
   ```
 
-### Sanitizers (ASAN and UBSAN)
+### Sanitizer(ASAN 与 UBSAN)
 
-  ASAN/UBSAN can be used to detect memory errors and other common forms of undefined behavior at runtime in debug builds.
+  在 debug 构建中,ASAN/UBSAN 可以在运行时检测内存错误和其他常见未定义行为。
 
-- To build Neovim with sanitizers enabled, use
+- 启用 sanitizer 构建 Neovim:
   ```
   rm -rf build && CMAKE_EXTRA_FLAGS="-DCMAKE_C_COMPILER=clang -DENABLE_ASAN_UBSAN=1" make
   ```
-- When running Neovim, use
+- 运行 Neovim 时:
   ```
   ASAN_OPTIONS=log_path=/tmp/nvim_asan nvim args...
   ```
-- If Neovim exits unexpectedly, check `/tmp/nvim_asan.{PID}` (or your preferred `log_path`) for log files with error messages.
+- 如果 Neovim 异常退出,检查 `/tmp/nvim_asan.{PID}`(或你设置的 `log_path`)下的日志文件获取错误信息。
 
 
-Coding
-------
+编码
+----
 
 ### Lint
 
-You can run the linter locally by:
+本地运行 linter:
 
 ```bash
-make lint  # or lintc, lintlua, lintquery, lintdoc
+make lint  # 或 lintc, lintlua, lintquery, lintdoc
 ```
 
-### Style
+### 代码风格
 
-- You can format files by using:
+- 格式化文件:
   ```bash
-  make format  # or formatc, formatlua, formatquery
+  make format  # 或 formatc, formatlua, formatquery
   ```
-  This will format changed C, Lua, and treesitter query files with all
-  appropriate flags set.
-- Style rules are (mostly) defined by `src/uncrustify.cfg` which tries to match
-  the [style-guide]. To use the Nvim `gq` command with `uncrustify`:
+  会按全部相应配置格式化改动过的 C、Lua 和 treesitter query 文件。
+- 风格规则(大部分)由 `src/uncrustify.cfg` 定义,它与[风格指南][style-guide]保持一致。想在 Nvim 里用 `gq` 调 `uncrustify`:
   ```vim
   if !empty(findfile('src/uncrustify.cfg', ';'))
     setlocal formatprg=uncrustify\ -q\ -l\ C\ -c\ src/uncrustify.cfg\ --no-backup
   endif
   ```
 
-### Navigate
+### 代码导航
 
-- Set `blame.ignoreRevsFile` to ignore [noisy commits](https://github.com/neovim/neovim/commit/2d240024acbd68c2d3f82bc72cb12b1a4928c6bf) in git blame:
+- 设置 `blame.ignoreRevsFile`,让 git blame 忽略[噪音提交](https://github.com/neovim/neovim/commit/2d240024acbd68c2d3f82bc72cb12b1a4928c6bf):
   ```bash
   git config blame.ignoreRevsFile .git-blame-ignore-revs
   ```
 
-- Recommendation is to use **[clangd]**.
-  Can use the maintained config in [nvim-lspconfig/clangd].
-- Explore the source code [on the web](https://sourcegraph.com/github.com/neovim/neovim).
+- 推荐使用 **[clangd]**。可以直接用 [nvim-lspconfig/clangd] 里维护的配置。
+- 也可以[在网页上](https://sourcegraph.com/github.com/neovim/neovim)浏览源码。
 
-### Includes
+### 头文件包含
 
-For managing includes in C files, use [include-what-you-use].
+管理 C 文件的 include 用 [include-what-you-use]。
 
-- [Install include-what-you-use][include-what-you-use-install]
-- To see which includes needs fixing use the cmake preset `iwyu`:
+- [安装 include-what-you-use][include-what-you-use-install]
+- 用 cmake preset `iwyu` 查看哪些 include 需要修:
   ```bash
   cmake --preset iwyu
   cmake --build build
   ```
-- There's also a make target that automatically fixes the suggestions from
-  IWYU:
+- 还有自动修复 IWYU 建议的 make 目标:
   ```bash
   make iwyu
   ```
 
-See [#549][549] for more details.
+更多细节见 [#549][549]。
 
-### Lua runtime files
+### Lua 运行时文件
 
-The Lua [`runtime/lua/vim/_core/`](./runtime/lua/vim/_core/) modules are
-precompiled to bytecode, so changes won't be usable unless you (1) rebuild Nvim
-or (2) start Nvim with `--luamod-dev` and `$VIMRUNTIME`. For example try adding
-a function to `runtime/lua/vim/_core/editor.lua`, then:
+Lua 的 [`runtime/lua/vim/_core/`](./runtime/lua/vim/_core/) 模块会被预编译成字节码,所以改动要生效必须:(1) 重新构建 Nvim,或 (2) 用 `--luamod-dev` 和 `$VIMRUNTIME` 启动 Nvim。例如往 `runtime/lua/vim/_core/editor.lua` 加个函数,然后:
 
 ```bash
 VIMRUNTIME=./runtime ./build/bin/nvim --luamod-dev
 ```
 
-Documentation
--------------
+文档
+----
 
-Read [:help dev-doc][dev-doc-guide] to understand the expected documentation style and conventions.
+读 [:help dev-doc][dev-doc-guide] 了解文档的预期风格和约定。
 
-### Generating :help
+### 生成 :help
 
-Many `:help` docs are autogenerated from (C or Lua) docstrings. To generate the documentation run:
+很多 `:help` 文档由(C 或 Lua)docstring 自动生成。生成文档:
 
 ```bash
 make doc
 ```
 
-To validate the documentation files, run:
+校验文档文件:
 
 ```bash
 make lintdoc
 ```
 
-If you need to modify or debug the documentation flow, these are the main files:
-- `./src/gen/gen_vimdoc.lua`:
-  Main doc generator. Parses C and Lua files to render vimdoc files.
-- `./src/gen/luacats_parser.lua`:
-  Documentation parser for Lua files.
-- `./src/gen/cdoc_parser.lua`:
-  Documentation parser for C files.
-- `./src/gen/luacats_grammar.lua`:
-  Lpeg grammar for LuaCATS
-- `./src/gen/cdoc_grammar.lua`:
-  Lpeg grammar for C doc comments
-- `./src/gen/gen_eval_files.lua`:
-  Generates documentation and Lua type files from metadata files:
+如果需要修改或调试文档生成流程,主要涉及这些文件:
+- `./src/gen/gen_vimdoc.lua`:主文档生成器,解析 C 和 Lua 文件并渲染 vimdoc。
+- `./src/gen/luacats_parser.lua`:Lua 文件文档解析器。
+- `./src/gen/cdoc_parser.lua`:C 文件文档解析器。
+- `./src/gen/luacats_grammar.lua`:LuaCATS 的 Lpeg 文法。
+- `./src/gen/cdoc_grammar.lua`:C 文档注释的 Lpeg 文法。
+- `./src/gen/gen_eval_files.lua`:从元数据文件生成文档和 Lua 类型文件:
   ```
   runtime/lua/vim/*     =>  runtime/doc/lua.txt
   runtime/lua/vim/*     =>  runtime/doc/lua.txt
@@ -296,54 +265,41 @@ If you need to modify or debug the documentation flow, these are the main files:
   src/nvim/options.lua  =>  runtime/doc/options.txt
   ```
 
-- `./scripts/lintdoc.lua`: Validation and linting of documentation files.
+- `./scripts/lintdoc.lua`:文档文件校验与 lint。
 
-### Lua docstrings
+### Lua docstring
 
-Use [LuaCATS] annotations in Lua docstrings to annotate parameter types, return
-types, etc. See [:help dev-lua-doc][dev-lua-doc].
+在 Lua docstring 里用 [LuaCATS] 注解标注参数类型、返回类型等,见 [:help dev-lua-doc][dev-lua-doc]。
 
-Run `make emmylua-check` to check the runtime with [EmmyLua]. The build downloads
-the pinned checker automatically. Settings are in `.emmyrc.json`.
+运行 `make emmylua-check` 可用 [EmmyLua] 检查 runtime。构建会自动下载固定版本的检查器,配置在 `.emmyrc.json`。
 
-Third-party dependencies
-------------------------
+第三方依赖
+----------
 
-To build Nvim using a different commit of a dependency change the appropriate
-URL in `cmake.deps/deps.txt`. For example, to use a different version of luajit
-replace the value in `LUAJIT_URL` with the wanted commit hash:
+想用依赖的其他 commit 构建 Nvim,改 `cmake.deps/deps.txt` 里对应的 URL 即可。例如换一个 luajit 版本,把 `LUAJIT_URL` 的值替换成想要的 commit hash:
 
 ```bash
 LUAJIT_URL https://github.com/LuaJIT/LuaJIT/archive/<sha>.tar.gz
 ```
 
-Set `DEPS_IGNORE_SHA` to `TRUE` in `cmake.deps/CMakeLists.txt` to skip hash
-check from cmake.
+在 `cmake.deps/CMakeLists.txt` 里把 `DEPS_IGNORE_SHA` 设为 `TRUE` 可以跳过 cmake 的 hash 校验。
 
-Alternatively, you may point the URL as a local path where the repository is.
-This is convenient when bisecting a problem in a dependency with `git bisect`.
-This may require running `make distclean` between each build. Hash checking is
-always skipped in this case regardless of `DEPS_IGNORE_SHA`.
+也可以把 URL 指向本地仓库路径。这对用 `git bisect` 二分排查依赖问题很方便。这种做法下每次构建之间可能需要 `make distclean`;此时无论 `DEPS_IGNORE_SHA` 为何都会跳过 hash 校验。
 
 ```bash
 LUAJIT_URL /home/user/luajit
 ```
 
-Reviewing
----------
+代码评审
+--------
 
-Reviewing can be done on GitHub, but you may find it easier to do locally.
-Using [GitHub CLI][gh], you can create a new branch with the contents of a pull
-request, e.g. [#1820][1820]:
+评审可以在 GitHub 上做,但在本地往往更顺手。用 [GitHub CLI][gh] 可以把 PR 内容检出到新分支,例如 [#1820][1820]:
 
 ```bash
 gh pr checkout https://github.com/neovim/neovim/pull/1820
 ```
 
-Use [`git log -p master..FETCH_HEAD`][git-history-filtering] to list all
-commits in the feature branch which aren't in the `master` branch; `-p`
-shows each commit's diff. To show the whole surrounding function of a change
-as context, use the `-W` argument as well.
+用 [`git log -p master..FETCH_HEAD`][git-history-filtering] 列出特性分支上不在 `master` 里的所有提交;`-p` 显示每个提交的 diff。想看改动所在函数的完整上下文,再加 `-W` 参数。
 
 [549]: https://github.com/neovim/neovim/issues/549
 [1820]: https://github.com/neovim/neovim/pull/1820
