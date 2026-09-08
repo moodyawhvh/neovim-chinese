@@ -1,7 +1,9 @@
 # AGENTS.md
 
-## AI Disclosure
+> 🌐 本文档由 [neovim/neovim](https://github.com/neovim/neovim) 翻译,英文原版见原项目。
 
-If AI was used for a commit, add a generic `AI-assisted` trailer to the commit message.
-Do NOT add any info mentioning the particular model or the AI service.
-Do NOT list an AI service as the author name/email.
+## AI 使用披露
+
+如果某个 commit 使用了 AI,请在 commit message 末尾附加一个通用的 `AI-assisted` trailer。
+不要添加任何提及具体模型或 AI 服务的信息。
+不要把 AI 服务列为作者名/邮箱。
