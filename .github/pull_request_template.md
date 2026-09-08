@@ -1,9 +1,11 @@
 <!--
-  Thank you for contributing to Neovim!
-  If this is your first time, check out https://github.com/neovim/neovim/blob/master/CONTRIBUTING.md#pull-requests-prs
-  for our PR guidelines.
+  感谢参与 Neovim 贡献!
+  如果是第一次贡献,请先阅读 https://github.com/neovim/neovim/blob/master/CONTRIBUTING.md#pull-requests-prs
+  的 PR 准则。
 -->
 
-## Problem
+> 🌐 本文档由 [neovim/neovim](https://github.com/neovim/neovim) 翻译,英文原版见原项目。
 
-## Solution
+## 问题(Problem)
+
+## 解决方案(Solution)
