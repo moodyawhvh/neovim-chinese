@@ -1,25 +1,33 @@
-# CMAKE REFERENCE
-#   - intro: https://codingnest.com/basic-cmake/
-#   - best practices (3.0+): https://gist.github.com/mbinna/c61dbb39bca0e4fb7d1f73b0d66a4fd1
-#   - pitfalls: https://izzys.casa/2019/02/everything-you-never-wanted-to-know-about-cmake/
-#   - troubleshooting:
+# ============================================================
+# Neovim 主 CMakeLists.txt(汉化注释版)
+> 🌐 本文件由 [neovim/neovim](https://github.com/neovim/neovim) 翻译注释,英文原版见原项目。
+#
+# 说明:仅新增/翻译注释,构建逻辑与上游保持一致。
+# ============================================================
+# CMAKE 参考资料
+#   - 入门: https://codingnest.com/basic-cmake/
+#   - 最佳实践 (3.0+): https://gist.github.com/mbinna/c61dbb39bca0e4fb7d1f73b0d66a4fd1
+#   - 常见坑: https://izzys.casa/2019/02/everything-you-never-wanted-to-know-about-cmake/
+#   - 排障:
 #     - variable_watch https://cmake.org/cmake/help/latest/command/variable_watch.html
-#     - verbose output: cmake --build build --verbose
+#     - 详细输出: cmake --build build --verbose
 
-# Version should match the tested CMAKE_URL in .github/workflows/build.yml.
+# 最低版本要求需与 .github/workflows/build.yml 中测试过的 CMAKE_URL 保持一致。
 cmake_minimum_required(VERSION 3.16)
 
 project(nvim C)
 
+# CMP0135:ExternalProject 下载内容的文件时间戳策略,显式设为 NEW 保证可复现
 if(POLICY CMP0135)
   cmake_policy(SET CMP0135 NEW)
 endif()
 
+# Xcode 生成器不受支持,直接报错终止
 if(XCODE)
   message(FATAL_ERROR [[Xcode generator is not supported. Use "Ninja" or "Unix Makefiles" instead]])
 endif()
 
-# Point CMake at any custom modules we may ship
+# 挂上本项目自带的 CMake 模块目录
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 
 include(CheckCCompilerFlag)
@@ -36,52 +44,58 @@ include(PreventInTreeBuilds)
 include(Util)
 
 if(NOT PROJECT_SOURCE_DIR STREQUAL PROJECT_BINARY_DIR)
-  # Auto-create a .gitignore in the specified "build" directory.
+  # 非 in-tree 构建时,在 build 目录自动生成 .gitignore,防止构建产物入库。
   file(GENERATE OUTPUT .gitignore CONTENT "*")
 endif()
 
 #-------------------------------------------------------------------------------
-# User settings
+# 用户设置(User settings)
 #-------------------------------------------------------------------------------
 
 if(NOT DEPS_IGNORE_SHA)
+  # 是否跳过依赖源的 hash 校验(离线/本地路径构建时用)
   set(DEPS_IGNORE_SHA FALSE)
 endif()
 
 #-------------------------------------------------------------------------------
-# Variables
+# 变量(Variables)
 #-------------------------------------------------------------------------------
+# 函数数据 / 触碰标记 / libvterm 测试输出等中间产物的路径
 set(FUNCS_DATA ${PROJECT_BINARY_DIR}/funcs_data.mpack)
 set(TOUCHES_DIR ${PROJECT_BINARY_DIR}/touches)
 set(VTERM_TEST_FILE ${PROJECT_BINARY_DIR}/test/vterm_test_output)
 
+# 收集 runtime/doc 下全部文档;CONFIGURE_DEPENDS 让新增文件自动触发重配置
 file(GLOB DOCFILES CONFIGURE_DEPENDS ${PROJECT_SOURCE_DIR}/runtime/doc/*.txt)
 
+# CI 上保留安装输出便于排查;本地静默安装信息
 if(NOT CI_BUILD)
   set(CMAKE_INSTALL_MESSAGE NEVER)
 endif()
 
+# 老 CMake(<3.20)默认导出 compile_commands.json,方便 clangd 等工具
 if(${CMAKE_VERSION} VERSION_LESS 3.20)
   set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 endif()
 
+# 3.26+ 用增量复制的 copy_directory_if_different,减少运行时目录拷贝开销
 if(${CMAKE_VERSION} VERSION_GREATER_EQUAL 3.26)
   set(COPY_DIRECTORY copy_directory_if_different)
 else()
   set(COPY_DIRECTORY copy_directory)
 endif()
 
-# Prefer our bundled versions of dependencies.
+# 优先使用本项目 bundled 的依赖版本。
 if(DEFINED ENV{DEPS_BUILD_DIR})
   set(DEPS_PREFIX "$ENV{DEPS_BUILD_DIR}/usr" CACHE PATH "Path prefix for finding dependencies")
 else()
   set(DEPS_PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/.deps/usr" CACHE PATH "Path prefix for finding dependencies")
-  # When running from within CLion or Visual Studio,
-  # build bundled dependencies automatically.
+  # 在 CLion 或 Visual Studio 里打开时,自动构建 bundled 依赖。
   if(NOT EXISTS ${DEPS_PREFIX}
      AND (DEFINED ENV{CLION_IDE}
           OR DEFINED ENV{VisualStudioEdition}))
     message(STATUS "Building dependencies...")
+    # 用与主构建一致的工具链/编译选项单独配置一份依赖构建树
     set(DEPS_BUILD_DIR ${PROJECT_BINARY_DIR}/.deps)
     file(MAKE_DIRECTORY ${DEPS_BUILD_DIR})
     execute_process(
@@ -104,11 +118,12 @@ else()
   endif()
 endif()
 
+# 把 bundled 依赖前缀插到查找路径最前,优先于系统库
 list(INSERT CMAKE_PREFIX_PATH 0 ${DEPS_PREFIX})
 
 if(APPLE)
-  # If the macOS deployment target is not set manually (via $MACOSX_DEPLOYMENT_TARGET),
-  # fall back to local system version. Needs to be done both here and in cmake.deps.
+  # 未手动设置 macOS 部署目标(经 $MACOSX_DEPLOYMENT_TARGET)时,
+  # 回退为本机系统版本。此处与 cmake.deps 都要设置。
   if(NOT CMAKE_OSX_DEPLOYMENT_TARGET)
     execute_process(COMMAND sw_vers -productVersion
                     OUTPUT_VARIABLE MACOS_VERSION
